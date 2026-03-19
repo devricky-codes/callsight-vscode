@@ -1,0 +1,140 @@
+{
+  "name": "callsight",
+  "displayName": "CallSight",
+  "description": "Interactive call-flow diagrams for any codebase. Local, fast, language-agnostic.",
+  "version": "0.3.0",
+  "publisher": "devricky",
+  "license": "MIT",
+  "icon": "media/128x128.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devricky-codes/callsight-vscode-extension.git"
+  },
+  "homepage": "https://github.com/devricky-codes/callsight-vscode-extension#readme",
+  "bugs": {
+    "url": "https://github.com/devricky-codes/callsight-vscode-extension/issues"
+  },
+  "keywords": [
+    "callsight",
+    "call-graph",
+    "code-visualization",
+    "tree-sitter",
+    "static-analysis",
+    "diagram",
+    "codebase",
+    "typescript",
+    "javascript",
+    "python",
+    "go"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:callsight.analyzeWorkspace",
+    "onCommand:callsight.launch"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "callsight.analyzeWorkspace",
+        "title": "CallSight: Visualize Entire Codebase"
+      },
+      {
+        "command": "callsight.launch",
+        "title": "CallSight: Launch / Reopen"
+      },
+      {
+        "command": "callsight.analyzeCurrentFile",
+        "title": "CallSight: Visualize Current File"
+      }
+    ],
+    "configuration": {
+      "title": "CallSight",
+      "properties": {
+        "callsight.exclude": {
+          "type": "array",
+          "default": [
+            "node_modules",
+            "dist",
+            "build",
+            ".git",
+            "__pycache__",
+            "*.test.*",
+            "*.spec.*"
+          ],
+          "description": "Glob patterns to exclude from analysis"
+        },
+        "callsight.maxNodes": {
+          "type": "number",
+          "default": 500,
+          "description": "Warn if graph exceeds this many nodes"
+        },
+        "callsight.layout": {
+          "type": "string",
+          "enum": [
+            "LR",
+            "TB"
+          ],
+          "default": "LR",
+          "description": "Diagram layout direction"
+        },
+        "callsight.blacklist": {
+          "type": "array",
+          "default": [],
+          "description": "Additional glob patterns to exclude on top of the built-in defaults. Example: ['src/generated', 'src/vendor']"
+        },
+        "callsight.whitelist": {
+          "type": "array",
+          "default": [],
+          "description": "If non-empty, only files matching these glob patterns are scanned. Example: ['src/core/**', 'src/api/**']. Leave empty to scan everything not blacklisted."
+        },
+        "callsight.scanBatchSize": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 500,
+          "description": "Number of files to parse in parallel per batch during workspace and git-diff scans. Lower values use fewer OS file handles; higher values scan faster."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "pnpm run build:webview && tsc -p ./",
+    "build:webview": "vite build",
+    "package": "pnpm run build:webview && esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap"
+  },
+  "dependencies": {
+    "@codeflow-map/core": "^0.1.0",
+    "@xyflow/react": "^12.0.0",
+    "dagre": "^0.8.5",
+    "lucide-react": "^0.400.0",
+    "minimatch": "^9.0.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/dagre": "^0.7.52",
+    "@types/node": "20.x",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.85.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.4",
+    "tree-sitter-wasms": "^0.1.13",
+    "vite": "^5.0.0"
+  }
+}
