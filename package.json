@@ -2,17 +2,17 @@
   "name": "callsight",
   "displayName": "CallSight",
   "description": "Interactive call-flow diagrams for any codebase. Local, fast, language-agnostic.",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "publisher": "devricky",
   "license": "MIT",
   "icon": "media/128x128.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/devricky-codes/callsight-vscode-extension.git"
+    "url": "https://github.com/devricky-codes/callsight-vscode.git"
   },
-  "homepage": "https://github.com/devricky-codes/callsight-vscode-extension#readme",
+  "homepage": "https://github.com/devricky-codes/callsight-vscode#readme",
   "bugs": {
-    "url": "https://github.com/devricky-codes/callsight-vscode-extension/issues"
+    "url": "https://github.com/devricky-codes/callsight-vscode/issues"
   },
   "keywords": [
     "callsight",
@@ -117,7 +117,7 @@
     "package": "pnpm run build:webview && esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap"
   },
   "dependencies": {
-    "@codeflow-map/core": "^0.1.0",
+    "@codeflow-map/core": "^0.2.0",
     "@xyflow/react": "^12.0.0",
     "dagre": "^0.8.5",
     "lucide-react": "^0.400.0",

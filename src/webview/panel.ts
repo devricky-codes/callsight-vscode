@@ -10,6 +10,56 @@ let currentFilePath: string | undefined;
 let treeSitterReady = false;
 let messageHandlerAttached = false;
 
+/**
+ * Max number of nodes/edges to send in a single postMessage chunk.
+ * Keeps each serialised message well under V8's ~512 MB string limit.
+ */
+const CHUNK_SIZE = 5_000;
+
+/**
+ * Posts a graph to the webview in chunks so that JSON.stringify never
+ * has to serialise the entire graph in one call.
+ */
+function postGraphToWebview(
+  panel: vscode.WebviewPanel,
+  graph: any,
+  callsightConfig: any,
+  mode: string
+) {
+  const { nodes, edges, flows, orphans, ...meta } = graph;
+
+  // 1. Send metadata + flows/orphans (these are small — just ID strings)
+  panel.webview.postMessage({
+    type: 'LOAD_GRAPH_START',
+    meta,
+    flows,
+    orphans,
+    callsightConfig,
+    mode,
+    totalNodes: nodes.length,
+    totalEdges: edges.length,
+  });
+
+  // 2. Stream nodes in chunks
+  for (let i = 0; i < nodes.length; i += CHUNK_SIZE) {
+    panel.webview.postMessage({
+      type: 'LOAD_GRAPH_NODES',
+      nodes: nodes.slice(i, i + CHUNK_SIZE),
+    });
+  }
+
+  // 3. Stream edges in chunks
+  for (let i = 0; i < edges.length; i += CHUNK_SIZE) {
+    panel.webview.postMessage({
+      type: 'LOAD_GRAPH_EDGES',
+      edges: edges.slice(i, i + CHUNK_SIZE),
+    });
+  }
+
+  // 4. Signal completion
+  panel.webview.postMessage({ type: 'LOAD_GRAPH_END' });
+}
+
 /** Stores the last scan result so the panel can be relaunched from a notification. */
 let lastContext: { context: vscode.ExtensionContext; graph: any; wasmDir: string; mode: 'workspace' | 'file' } | undefined;
 
@@ -173,7 +223,7 @@ export function openCallSightPanel(
   if (currentPanel) {
     // Panel already exists (either pre-created by ensurePanel or from a previous run)
     attachMessageHandler(context); // no-op if already attached
-    currentPanel.webview.postMessage({ type: 'LOAD_GRAPH', graph, callsightConfig: { blacklist }, mode });
+    postGraphToWebview(currentPanel, graph, { blacklist }, mode);
     currentPanel.reveal(vscode.ViewColumn.Beside);
   } else {
     ensurePanel(context, wasmDir);
@@ -181,7 +231,7 @@ export function openCallSightPanel(
     // We patch the handler to send the graph on the first READY event
     const disposable = currentPanel!.webview.onDidReceiveMessage(msg => {
       if (msg.type === 'READY') {
-        currentPanel?.webview.postMessage({ type: 'LOAD_GRAPH', graph, callsightConfig: { blacklist }, mode });
+        if (currentPanel) postGraphToWebview(currentPanel, graph, { blacklist }, mode);
         disposable.dispose();
       }
     });

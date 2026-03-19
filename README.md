@@ -4,6 +4,10 @@
 
 ![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/128x128.png)
 
+## Demo
+
+[![Watch the demo](https://img.youtube.com/vi/guqia5mW6_U/0.jpg)](https://www.youtube.com/watch?v=guqia5mW6_U)
+
 ## Features
 
 - **Visualize your entire codebase** — every function becomes a node, every call becomes an edge
@@ -25,6 +29,7 @@
 | `CallSight: Launch / Reopen` | Reopen CallSight instantly with the last scan — or trigger a fresh scan if none exists |
 
 > **Tip:** If you navigate from a node into source code and the panel closes, run **CallSight: Launch / Reopen** from the Command Palette (`Ctrl+Shift+P`) to get back without rescanning.
+
 
 ## Graph Analysis Tools
 
@@ -95,7 +100,7 @@ Use it to build your own MCP servers, CLI tools, or integrations on top of the c
 
 CallSight is open source!
 
-- Browse and verify the code
+- Browse and verify the code [https://github.com/devricky-codes/callsight-vscode](https://github.com/devricky-codes/callsight-vscode)
 - [Open an issue](https://github.com/devricky-codes/callsight-vscode/issues) to report bugs or request features
 - Contributions are welcome — feel free to submit a pull request
 

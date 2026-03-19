@@ -53,6 +53,50 @@ export default function App() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
+      // --- Chunked graph transfer protocol ---
+      if (message.type === 'LOAD_GRAPH_START') {
+        // Reset accumulators for incoming chunks
+        (window as any).__graphNodes = [];
+        (window as any).__graphEdges = [];
+        (window as any).__graphMeta = message.meta;
+        (window as any).__graphFlows = message.flows;
+        (window as any).__graphOrphans = message.orphans;
+        if (message.callsightConfig?.blacklist) {
+          setBlacklist(message.callsightConfig.blacklist);
+        }
+        if (message.mode) {
+          setMode(message.mode);
+        }
+        setScanProgress({ scannedFiles: 0, totalFiles: message.totalNodes });
+      }
+      if (message.type === 'LOAD_GRAPH_NODES') {
+        const acc = (window as any).__graphNodes as any[];
+        acc.push(...message.nodes);
+        const total = (window as any).__graphMeta ? (window as any).__graphMeta.scannedFiles : 0;
+        setScanProgress({ scannedFiles: acc.length, totalFiles: acc.length });
+      }
+      if (message.type === 'LOAD_GRAPH_EDGES') {
+        ((window as any).__graphEdges as any[]).push(...message.edges);
+      }
+      if (message.type === 'LOAD_GRAPH_END') {
+        const meta = (window as any).__graphMeta || {};
+        const assembled = {
+          ...meta,
+          nodes: (window as any).__graphNodes || [],
+          edges: (window as any).__graphEdges || [],
+          flows: (window as any).__graphFlows || [],
+          orphans: (window as any).__graphOrphans || [],
+        };
+        // Clean up temporaries
+        delete (window as any).__graphNodes;
+        delete (window as any).__graphEdges;
+        delete (window as any).__graphMeta;
+        delete (window as any).__graphFlows;
+        delete (window as any).__graphOrphans;
+        setGraph(assembled);
+        setScanProgress(null);
+      }
+      // Legacy single-message support (small graphs / single-file analysis)
       if (message.type === 'LOAD_GRAPH') {
         const { graph: loadedGraph, callsightConfig, mode: loadedMode } = message;
         setGraph(loadedGraph);

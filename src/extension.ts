@@ -3,15 +3,30 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { minimatch } from 'minimatch';
-import { parseFile, parseFileContent, buildCallGraph, detectEntryPoints, partitionFlows, initTreeSitter, FunctionNode, CallEdge, DiffGraph, NodeDiffStatus, EdgeDiffStatus, FILE_EXTENSION_MAP, SupportedLanguage } from '@codeflow-map/core';
+import { parseFile, parseFileContent, buildCallGraph, detectEntryPoints, partitionFlows, initTreeSitter, FunctionNode, CallEdge, DiffGraph, NodeDiffStatus, EdgeDiffStatus, FILE_EXTENSION_MAP, SupportedLanguage, Logger } from '@codeflow-map/core';
 import { openCallSightPanel, ensurePanel, currentPanel, revealLastResult, hasLastResult } from './webview/panel';
 
 let treeSitterInitialized = false;
+let outputChannel: vscode.OutputChannel;
 
 const DEFAULT_SCAN_BATCH_SIZE = 50;
 
 function getScanBatchSize(): number {
   return vscode.workspace.getConfiguration('callsight').get<number>('scanBatchSize') || DEFAULT_SCAN_BATCH_SIZE;
+}
+
+/** Rough byte-size estimate without serialising the entire graph. */
+function estimateGraphSize(graph: { nodes: any[]; edges: any[]; flows: any[]; orphans: string[] }): number {
+  const avgNodeBytes = 250; // id + name + filePath + numbers + booleans
+  const avgEdgeBytes = 120; // from + to + line
+  const avgFlowBytes = 80;  // id + entryPoint + per-nodeId ~40 chars
+  const flowNodeIdBytes = graph.flows.reduce((sum, f) => sum + f.nodeIds.length * 40, 0);
+  const orphanBytes = graph.orphans.reduce((sum, id) => sum + id.length + 4, 0);
+  return graph.nodes.length * avgNodeBytes
+       + graph.edges.length * avgEdgeBytes
+       + graph.flows.length * avgFlowBytes
+       + flowNodeIdBytes
+       + orphanBytes;
 }
 
 const DISCOVERY_EXCLUDES = [
@@ -25,6 +40,14 @@ const DISCOVERY_EXCLUDES = [
 ];
 
 export async function activate(context: vscode.ExtensionContext) {
+  outputChannel = vscode.window.createOutputChannel('CallSight');
+  context.subscriptions.push(outputChannel);
+
+  const log: Logger = (msg: string) => {
+    const ts = new Date().toISOString().slice(11, 23);
+    outputChannel.appendLine(`[${ts}] ${msg}`);
+  };
+
   const analyzeWorkspaceCmd = vscode.commands.registerCommand('callsight.analyzeWorkspace', analyzeWorkspace);
   const analyzeCurrentFileCmd = vscode.commands.registerCommand('callsight.analyzeCurrentFile', analyzeActiveEditor);
   const launchCmd = vscode.commands.registerCommand('callsight.launch', () => {
@@ -41,14 +64,17 @@ export async function activate(context: vscode.ExtensionContext) {
     try {
       const wasmDir = vscode.Uri.joinPath(context.extensionUri, 'grammars').fsPath;
       if (!treeSitterInitialized) {
+        log('Initializing Tree-sitter...');
         await initTreeSitter(wasmDir);
         treeSitterInitialized = true;
+        log('Tree-sitter initialized');
       }
 
       vscode.window.withProgress(
         { location: vscode.ProgressLocation.Notification, title: "CallSight: Scanning Workspace..." },
         async () => {
           const startTime = Date.now();
+          log('=== Workspace analysis started ===');
 
           // Open the panel early so SCAN_PROGRESS messages have somewhere to land
           ensurePanel(context, wasmDir);
@@ -63,6 +89,7 @@ export async function activate(context: vscode.ExtensionContext) {
           // Derive include pattern from FILE_EXTENSION_MAP so new languages in core are picked up automatically
           const extGlob = Object.keys(FILE_EXTENSION_MAP).map(e => e.replace('.', '')).join(',');
           const uris = await vscode.workspace.findFiles(`**/*.{${extGlob}}`, excludePattern);
+          log(`File discovery: ${uris.length} files found in ${Date.now() - startTime}ms`);
           
           if (uris.length === 0) {
             vscode.window.showInformationMessage('CallSight: No supported files found in workspace.');
@@ -103,6 +130,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
           const totalFiles = filesToScan.length;
           const batchSize = getScanBatchSize();
+          log(`Files to scan: ${totalFiles} (batch size: ${batchSize})`);
 
           // Process in batches for parallel I/O without exhausting file handles
           for (let i = 0; i < totalFiles; i += batchSize) {
@@ -121,10 +149,23 @@ export async function activate(context: vscode.ExtensionContext) {
               totalFiles,
             });
           }
+
+          const scanDoneTime = Date.now();
+          log(`File scanning complete: ${allFunctions.length} functions, ${allCalls.length} calls from ${scannedFiles} files in ${scanDoneTime - startTime}ms`);
           
-          const edges = buildCallGraph(allFunctions, allCalls);
-          detectEntryPoints(allFunctions, edges);
-          const { flows, orphans } = partitionFlows(allFunctions, edges);
+          log('Starting buildCallGraph...');
+          const edges = buildCallGraph(allFunctions, allCalls, log);
+          log(`buildCallGraph complete: ${edges.length} edges in ${Date.now() - scanDoneTime}ms`);
+
+          log('Starting detectEntryPoints...');
+          detectEntryPoints(allFunctions, edges, log);
+
+          log('Starting partitionFlows...');
+          const { flows, orphans } = partitionFlows(allFunctions, edges, log);
+          log(`partitionFlows complete: ${flows.length} flows, ${orphans.length} orphans`);
+
+          const graphBuildTime = Date.now();
+          log(`Graph construction total: ${graphBuildTime - scanDoneTime}ms`);
 
           const graph = {
             nodes: allFunctions,
@@ -135,7 +176,13 @@ export async function activate(context: vscode.ExtensionContext) {
             durationMs: Date.now() - startTime
           };
 
+          const graphPayloadSize = estimateGraphSize(graph);
+          log(`Graph payload: ${graph.nodes.length} nodes, ${graph.edges.length} edges, ${graph.flows.length} flows, ${graph.orphans.length} orphans, ~${(graphPayloadSize / 1024 / 1024).toFixed(1)}MB est.`);
+          log('Posting graph to webview...');
           openCallSightPanel(context, graph, wasmDir, 'workspace');
+          log(`Graph posted to webview (${Date.now() - graphBuildTime}ms)`);
+          log(`=== Workspace analysis complete: ${((Date.now() - startTime) / 1000).toFixed(1)}s total ===`);
+          outputChannel.show(true);
 
           // Persistent notification so the user can relaunch the panel if they closed it
           vscode.window.showInformationMessage(
@@ -149,6 +196,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
       );
     } catch (e: any) {
+      log?.(`ERROR in workspace analysis: ${e.message}\n${e.stack}`);
       vscode.window.showErrorMessage('CallSight Workspace Analysis Failed: ' + e.message);
     }
   }
@@ -182,9 +230,9 @@ export async function activate(context: vscode.ExtensionContext) {
           
           const { functions, calls } = await parseFile(filePath, absPath, wasmDir, languageId);
           
-          const edges = buildCallGraph(functions, calls);
-          detectEntryPoints(functions, edges);
-          const { flows, orphans } = partitionFlows(functions, edges);
+          const edges = buildCallGraph(functions, calls, log);
+          detectEntryPoints(functions, edges, log);
+          const { flows, orphans } = partitionFlows(functions, edges, log);
 
           const graph = {
             nodes: functions,

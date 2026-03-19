@@ -1,0 +1,11 @@
+{
+    "callsight.exclude": [
+        "node_modules",
+        "dist",
+        "build",
+        ".git",
+        "__pycache__",
+        "*.test.*",
+        "*.spec.*"
+    ]
+}

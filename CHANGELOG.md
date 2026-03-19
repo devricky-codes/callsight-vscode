@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.4.1 — 2026-03-19
+
+### Added
+- **Demo video** — added a YouTube demo link to the README, showcasing the extension in action.
+
+---
+
+## 0.4.0 — 2026-03-19
+
+### Performance
+- **Chunked graph transfer** — large graphs are now streamed to the webview in batches (`LOAD_GRAPH_START` → `LOAD_GRAPH_NODES` → `LOAD_GRAPH_EDGES` → `LOAD_GRAPH_END`) instead of a single large postMessage, preventing webview crashes on very large codebases. Small graphs and single-file analysis retain the legacy single-message path.
+- **Shared Tree-sitter parser** — a single `Parser` instance is reused across all file scans, eliminating EMFILE (too many open files) errors on repos with thousands of source files.
+
+### Added
+- **CallSight Output Channel** — a dedicated "CallSight" panel in the VS Code Output view shows timestamped progress logs throughout workspace analysis: file discovery, per-batch scan, `buildCallGraph`, `detectEntryPoints`, `partitionFlows`, payload size estimate, and total elapsed time.
+- **Graph size estimator** — payload size (nodes + edges + flows) is estimated and logged before the graph is posted to the webview, helping diagnose performance issues.
+- **Live transfer progress** — the loading overlay now updates as node chunks arrive from the extension host.
+
+### Core dependency
+- Updated to `@codeflow-map/core@0.2.0`, which brings the `Logger` callback API, edge deduplication, and the recursive-function cycle fix.
+
+---
+
 ## 0.3.0
 
 ### New Commands
