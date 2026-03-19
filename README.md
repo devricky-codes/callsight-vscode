@@ -96,7 +96,7 @@ Use it to build your own MCP servers, CLI tools, or integrations on top of the c
 CallSight is open source!
 
 - Browse and verify the code
-- [Open an issue](https://https://github.com/devricky-codes/callsight-vscode/issues) to report bugs or request features
+- [Open an issue](https://github.com/devricky-codes/callsight-vscode/issues) to report bugs or request features
 - Contributions are welcome — feel free to submit a pull request
 
 ## License
