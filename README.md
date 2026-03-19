@@ -2,7 +2,7 @@
 
 **CallSight** parses your codebase and renders an interactive, whiteboard-style call-flow diagram right inside VS Code. Fully local, no cloud, no LLM, no telemetry.
 
-![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode-extension/main/packages/vscode-extension/media/128x128.png)
+![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/media/128x128.png)
 
 ## Features
 
@@ -93,12 +93,10 @@ Use it to build your own MCP servers, CLI tools, or integrations on top of the c
 
 ## Contributing & Source Code
 
-CallSight is open source! The full source code is available on GitHub:
-
-**[github.com/devricky-codes/callsight-vscode-extension](https://github.com/devricky-codes/callsight-vscode-extension)**
+CallSight is open source!
 
 - Browse and verify the code
-- [Open an issue](https://github.com/devricky-codes/callsight-vscode-extension/issues) to report bugs or request features
+- [Open an issue](https://https://github.com/devricky-codes/callsight-vscode/issues) to report bugs or request features
 - Contributions are welcome — feel free to submit a pull request
 
 ## License
