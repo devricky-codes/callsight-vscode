@@ -2,7 +2,7 @@
 
 **CallSight** parses your codebase and renders an interactive, whiteboard-style call-flow diagram right inside VS Code. Fully local, no cloud, no LLM, no telemetry.
 
-![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/media/128x128.png)
+![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/128x128.png)
 
 ## Features
 
