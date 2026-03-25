@@ -4,7 +4,7 @@
 
 ![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/128x128.png)
 
-## Demo (Click on the image below to watch on youtube)
+## Demo (Click below to watch on youtube)
 
 [Watch the demo on youtube](https://www.youtube.com/watch?v=guqia5mW6_U)
 
