@@ -1,6 +1,7 @@
+
 # CallSight — Interactive Call-Flow Diagrams
 
-**CallSight** parses your codebase and renders an interactive, whiteboard-style call-flow diagram right inside VS Code. Fully local, no cloud, no LLM, no telemetry. This aims to massively improve PR - reviews and Agentic generations reviews through deterministic approach missing nothing.
+**CallSight** parses your codebase and renders an interactive, whiteboard-style call-flow diagram right inside VS Code. Fully local, no cloud, no LLM, no telemetry. This aims to massively improve PR - reviews and agentic code generation reviews through deterministic approach missing nothing.
 
 ![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/128x128.png)
 
