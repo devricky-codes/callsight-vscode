@@ -1,12 +1,12 @@
 # CallSight — Interactive Call-Flow Diagrams
 
-**CallSight** parses your codebase and renders an interactive, whiteboard-style call-flow diagram right inside VS Code. Fully local, no cloud, no LLM, no telemetry.
+**CallSight** parses your codebase and renders an interactive, whiteboard-style call-flow diagram right inside VS Code. Fully local, no cloud, no LLM, no telemetry. This aims to massively improve PR - reviews and Agentic generations through deterministic approach missing nothing.
 
 ![CallSight](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/128x128.png)
 
-## Demo
+## Demo (Click on the image below to watch on youtube)
 
-[![Watch the demo](https://img.youtube.com/vi/guqia5mW6_U/0.jpg)](https://www.youtube.com/watch?v=guqia5mW6_U)
+[Watch the demo on youtube](https://www.youtube.com/watch?v=guqia5mW6_U)
 
 ## Features
 
@@ -19,6 +19,38 @@
 - **Isolate by node** — type in the canvas search to isolate a function and its direct neighbours
 - **Go to Root** — jump to any entry-point node from the canvas toolbar dropdown
 - **Fully local** — deterministic analysis powered by Tree-sitter, no network calls
+
+## Git Diff Shows How Function flows changed 
+Instantly see how your changes impact the overall architecture by highlighting added, removed, and modified functions and calls.
+
+![GitDiff](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/GitDiff.png)
+
+## Check Impact Radius of a Function
+Understand the ripple effect of a change by visualizing all downstream dependencies and affected workflows.
+
+![ImpactRadius](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/impactradius.png)
+
+## Circular Function Calls Across Files
+Identify and untangle complex dependency loops that can lead to maintenance headaches and architectural decay.
+
+![Circular](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/circulardependencies.png)
+
+## Cyclometic Complexity Hotspots 
+Pinpoint high-risk, overly complex functions that are prime candidates for refactoring and require extra testing.
+
+![Complexity](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/ComplexityHotspots.png)
+Pinpoint high-risk, overly complex functions that are prime candidates for refactoring and require extra testing.
+
+## Module Clusters Recommendation as per relative flow
+Discover natural boundaries in your code to better organize files into logical modules based on actual execution patterns.
+
+![ModuleClusters](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/ModuleClusters.png)
+
+## Works on very large codebases e.g running it on vscode repository
+Scale effortlessly to millions of lines of code while maintaining high-performance interactive exploration.
+
+![vscode](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/VsCodeRepo.png)
+
 
 ## Commands
 

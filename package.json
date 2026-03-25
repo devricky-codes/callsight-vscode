@@ -2,7 +2,7 @@
   "name": "callsight",
   "displayName": "CallSight",
   "description": "Interactive call-flow diagrams for any codebase. Local, fast, language-agnostic.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "publisher": "devricky",
   "license": "MIT",
   "icon": "media/128x128.png",
