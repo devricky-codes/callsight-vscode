@@ -36,11 +36,10 @@ Identify and untangle complex dependency loops that can lead to maintenance head
 
 ![Circular](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/circulardependencies.png)
 
-## Cyclometic Complexity Hotspots 
+## Cyclomatic Complexity Hotspots 
 Pinpoint high-risk, overly complex functions that are prime candidates for refactoring and require extra testing.
 
 ![Complexity](https://raw.githubusercontent.com/devricky-codes/callsight-vscode/refs/heads/main/media/ComplexityHotspots.png)
-Pinpoint high-risk, overly complex functions that are prime candidates for refactoring and require extra testing.
 
 ## Module Clusters Recommendation as per relative flow
 Discover natural boundaries in your code to better organize files into logical modules based on actual execution patterns.
