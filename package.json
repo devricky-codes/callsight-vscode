@@ -117,7 +117,7 @@
     "package": "pnpm run build:webview && esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap"
   },
   "dependencies": {
-    "@codeflow-map/core": "^0.2.0",
+    "@codeflow-map/core": "^0.2.3",
     "@xyflow/react": "^12.0.0",
     "dagre": "^0.8.5",
     "lucide-react": "^0.400.0",
